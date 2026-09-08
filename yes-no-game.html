@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Say Yes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Poppins:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep: #fff1f3;
+      --bg-mid: #f7c8d0;
+      --pink: #d94f70;
+      --lime: #e85d75;
+      --ice: #4f9697;
+      --cream: #452c36;
+      --muted: #896572;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      background: radial-gradient(circle at 20% 20%, var(--bg-mid), var(--bg-deep) 70%);
+      color: var(--cream);
+      font-family: 'Poppins', sans-serif;
+      overflow-x: hidden;
+    }
+
+    .stage {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      font-size: 14px;
+      letter-spacing: 0.02em;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 600;
+      font-size: clamp(32px, 6vw, 56px);
+      line-height: 1.15;
+      margin: 0 0 8px;
+      max-width: 680px;
+    }
+
+    .caption {
+      min-height: 28px;
+      font-size: 16px;
+      color: var(--lime);
+      font-weight: 500;
+      margin: 6px 0 46px;
+      transition: opacity 0.15s ease;
+    }
+
+    .buttons {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .btn {
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 600;
+      font-size: 22px;
+      border: none;
+      border-radius: 999px;
+      padding: 18px 46px;
+      cursor: pointer;
+      position: absolute;
+      top: min(68vh, calc(100vh - 80px));
+      transform: translate(-50%, -50%);
+      transition: transform 0.35s cubic-bezier(.34, 1.56, .64, 1), background 0.2s ease, box-shadow 0.2s ease, left 0.28s ease, top 0.28s ease;
+      white-space: nowrap;
+      pointer-events: auto;
+    }
+
+    .btn-yes {
+      left: 41%;
+      background: var(--lime);
+      color: white;
+      box-shadow: 0 0 0 rgba(198, 255, 61, 0.0);
+    }
+
+    .btn-yes.pulse {
+      box-shadow: 0 0 40px rgba(198, 255, 61, 0.45);
+    }
+
+    .btn-no {
+      left: 59%;
+      background: transparent;
+      color: var(--cream);
+      border: 2px solid var(--pink);
+    }
+
+    .btn-no:hover,
+    .btn-no:focus-visible {
+      background: rgba(217, 79, 112, 0.12);
+    }
+
+    .btn:active {
+      transform: translate(-50%, -50%) scale(0.96);
+    }
+
+    /* ---- success screen ---- */
+    #success-screen {
+      display: none;
+    }
+
+    #success-screen.visible {
+      display: flex;
+    }
+
+    .success-badge {
+      font-family: 'Fredoka', sans-serif;
+      font-size: clamp(36px, 7vw, 64px);
+      font-weight: 700;
+      color: var(--lime);
+      margin: 0 0 6px;
+    }
+
+    .success-sub {
+      font-size: 18px;
+      color: var(--muted);
+      max-width: 460px;
+      margin: 0 0 12px;
+    }
+
+    .success-note {
+      font-size: 15px;
+      color: var(--cream);
+      max-width: 440px;
+      margin: 0 0 50px;
+      opacity: 0.85;
+    }
+
+    .gallery-heading {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0 0 26px;
+      color: var(--ice);
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      width: 100%;
+    }
+
+    .gallery figure {
+      margin: 0;
+      border-radius: 16px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: zoom-in;
+      opacity: 0;
+      transform: translateY(14px);
+      animation: rise 0.5s ease forwards;
+    }
+
+    .gallery img {
+      display: block;
+      width: 100%;
+      height: 220px;
+      object-fit: contain;
+      background: rgba(255, 255, 255, 0.28);
+    }
+
+    .gallery figcaption {
+      font-size: 13px;
+      color: var(--muted);
+      padding: 10px 12px 12px;
+      text-align: left;
+    }
+
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 76px;
+      background: rgba(69, 44, 54, 0.86);
+      z-index: 10;
+    }
+
+    .lightbox.visible {
+      display: flex;
+    }
+
+    .lightbox-image {
+      display: block;
+      max-width: min(92vw, 1100px);
+      max-height: 88vh;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 12px;
+      box-shadow: 0 18px 50px rgba(45, 24, 32, 0.35);
+    }
+
+    .lightbox-button {
+      position: absolute;
+      display: grid;
+      place-items: center;
+      width: 46px;
+      height: 46px;
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.16);
+      color: #fff8f5;
+      font: 600 28px/1 Poppins, sans-serif;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .lightbox-button:hover,
+    .lightbox-button:focus-visible {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.06);
+    }
+
+    .lightbox-close {
+      top: 22px;
+      right: 24px;
+    }
+
+    .lightbox-prev {
+      left: 24px;
+    }
+
+    .lightbox-next {
+      right: 24px;
+    }
+
+    @keyframes rise {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    body.lightbox-open {
+      overflow: hidden;
+    }
+
+    @media (max-width: 560px) {
+      .gallery {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .buttons {
+        height: 100vh;
+      }
+
+      .btn {
+        font-size: 18px;
+        padding: 14px 24px;
+      }
+
+      .btn-yes {
+        left: 34%;
+      }
+
+      .btn-no {
+        left: 66%;
+      }
+
+      .gallery img {
+        height: 180px;
+      }
+
+      .lightbox {
+        padding: 72px 18px 24px;
+      }
+
+      .lightbox-image {
+        max-width: 94vw;
+        max-height: 78vh;
+      }
+
+      .lightbox-button {
+        width: 40px;
+        height: 40px;
+        font-size: 24px;
+      }
+
+      .lightbox-close {
+        top: 18px;
+        right: 18px;
+      }
+
+      .lightbox-prev {
+        left: 12px;
+      }
+
+      .lightbox-next {
+        right: 12px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <canvas id="confetti-canvas"></canvas>
+
+  <section class="stage" id="game-screen">
+    <div class="eyebrow">Quick question</div>
+    <h1 id="question">Are you still feeling upset?</h1>
+    <div class="caption" id="caption">&nbsp;</div>
+
+    <div class="buttons" id="button-stage">
+      <button class="btn btn-yes" id="yesBtn">Yes</button>
+      <button class="btn btn-no" id="noBtn">No</button>
+    </div>
+  </section>
+
+  <section class="stage" id="success-screen">
+    <p class="success-badge">Nailed it! 🎉</p>
+    <p class="success-sub">I knew you’d say yes…because you need to see me. 😉</p>
+    <p class="success-note">Sooo… when are you coming to see me? 👀</p>
+
+    <p class="gallery-heading">A small reward for you</p>
+    <div class="gallery" id="gallery"></div>
+  </section>
+
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image preview">
+    <button class="lightbox-button lightbox-close" id="lightboxClose" type="button" aria-label="Close">&times;</button>
+    <button class="lightbox-button lightbox-prev" id="lightboxPrev" type="button" aria-label="Previous image">&#8249;</button>
+    <img class="lightbox-image" id="lightboxImage" alt="">
+    <button class="lightbox-button lightbox-next" id="lightboxNext" type="button" aria-label="Next image">&#8250;</button>
+  </div>
+
+  <script>
+    (function () {
+      const yesBtn = document.getElementById('yesBtn');
+      const noBtn = document.getElementById('noBtn');
+      const stage = document.getElementById('button-stage');
+      const caption = document.getElementById('caption');
+      const gameScreen = document.getElementById('game-screen');
+      const successScreen = document.getElementById('success-screen');
+      const lightbox = document.getElementById('lightbox');
+      const lightboxImage = document.getElementById('lightboxImage');
+      const lightboxClose = document.getElementById('lightboxClose');
+      const lightboxPrev = document.getElementById('lightboxPrev');
+      const lightboxNext = document.getElementById('lightboxNext');
+      let galleryImages = [];
+      let currentImageIndex = 0;
+
+      const dodgeLines = [
+        "Nope, try again!",
+        "Not so fast 😏",
+        "Almost had it!",
+        "Nice try!",
+        "You can't catch me!",
+        "So close, yet so far.",
+        "Keep going, you've got this... or not.",
+        "Missed me!"
+      ];
+
+      let dodgeCount = 0;
+      const MAX_SCALE = 2.4;
+
+      function randomPosition() {
+        const w = stage.clientWidth;
+        const h = stage.clientHeight;
+        const btnW = noBtn.offsetWidth || 120;
+        const btnH = noBtn.offsetHeight || 56;
+        const stageRect = stage.getBoundingClientRect();
+        const yesRect = yesBtn.getBoundingClientRect();
+        const yesX = yesRect.left - stageRect.left + yesRect.width / 2;
+        const yesY = yesRect.top - stageRect.top + yesRect.height / 2;
+        const minDistance = (yesRect.width + btnW) / 2 + 40;
+
+        const marginX = btnW / 2 + 10;
+        const marginY = btnH / 2 + 10;
+
+        let x;
+        let y;
+        let distance;
+        let attempts = 0;
+
+        do {
+          x = marginX + Math.random() * Math.max(1, (w - marginX * 2));
+          y = marginY + Math.random() * Math.max(1, (h - marginY * 2));
+          distance = Math.hypot(x - yesX, y - yesY);
+          attempts++;
+        } while (distance < minDistance && attempts < 50);
+
+        return { x, y };
+      }
+
+      function dodge() {
+        dodgeCount++;
+
+        const pos = randomPosition();
+        noBtn.style.left = pos.x + 'px';
+        noBtn.style.top = pos.y + 'px';
+
+        caption.textContent = dodgeLines[Math.min(dodgeCount - 1, dodgeLines.length - 1)];
+      }
+
+      // Desktop: dodge on hover. Touch/click devices: dodge on click instead of firing "no".
+      noBtn.addEventListener('mouseenter', dodge);
+      noBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        dodge();
+      });
+      noBtn.addEventListener('touchstart', function (e) {
+        e.preventDefault();
+        dodge();
+      }, { passive: false });
+
+      yesBtn.addEventListener('click', function () {
+        gameScreen.style.display = 'none';
+        successScreen.classList.add('visible');
+        launchConfetti();
+        buildGallery();
+      });
+
+      // ---- Gallery ----
+      function buildGallery() {
+        const gallery = document.getElementById('gallery');
+        const items = [
+          { seed: './images/WhatsApp Image 2026-09-05 at 6.29.28 PM.jpeg' },
+          { seed: './images/WhatsApp Image 2026-09-05 at 6.29.32 PM (1).jpeg' },
+          { seed: './images/WhatsApp Image 2026-09-05 at 6.29.32 PM (2).jpeg' },
+          { seed: './images/WhatsApp Image 2026-09-05 at 6.29.32 PM.jpeg' },
+          { seed: './images/WhatsApp Image 2026-09-05 at 6.29.33 PM.jpeg' },
+          { seed: './images/WhatsApp Image 2026-09-05 at 6.34.41 PM.jpeg' },
+          { seed: './images/WhatsApp Image 2026-09-05 at 6.34.42 PM (1).jpeg' },
+          { seed: './images/WhatsApp Image 2026-09-05 at 6.34.44 PM.jpeg' },
+          { seed: './images/WhatsApp Image 2026-09-05 at 6.34.42 PM (2).jpeg' },
+          { seed: './images/WhatsApp Image 2026-09-05 at 6.34.42 PM.jpeg' },
+          { seed: './images/WhatsApp Image 2026-09-05 at 6.34.43 PM (1).jpeg' },
+          { seed: './images/WhatsApp Image 2026-09-05 at 6.34.43 PM (2).jpeg' },
+          { seed: './images/WhatsApp Image 2026-09-05 at 6.34.43 PM.jpeg' },
+          { seed: './images/WhatsApp Image 2026-09-05 at 6.38.59 PM.jpeg' },
+          { seed: './images/WhatsApp Image 2026-09-05 at 6.39.02 PM.jpeg' },
+          { seed: './images/WhatsApp Image 2026-09-05 at 6.39.03 PM (1).jpeg' },
+          { seed: './images/WhatsApp Image 2026-09-05 at 6.39.03 PM.jpeg' },
+        ];
+
+        gallery.innerHTML = '';
+        items.forEach(function (item, i) {
+          const fig = document.createElement('figure');
+          fig.style.animationDelay = (i * 0.08) + 's';
+
+          const img = document.createElement('img');
+          img.src = `${item.seed}`;
+          img.alt = item.caption;
+          img.loading = 'lazy';
+
+          const cap = document.createElement('figcaption');
+          cap.textContent = item.caption;
+
+          fig.appendChild(img);
+          fig.appendChild(cap);
+          gallery.appendChild(fig);
+        });
+
+        galleryImages = Array.from(gallery.querySelectorAll('img'));
+        galleryImages.forEach(function (img, index) {
+          img.parentElement.addEventListener('click', function () {
+            openLightbox(index);
+          });
+        });
+      }
+
+      function openLightbox(index) {
+        currentImageIndex = index;
+        updateLightboxImage();
+        lightbox.classList.add('visible');
+        document.body.classList.add('lightbox-open');
+        lightboxClose.focus();
+      }
+
+      function updateLightboxImage() {
+        const image = galleryImages[currentImageIndex];
+        if (!image) return;
+
+        lightboxImage.src = image.src;
+        lightboxImage.alt = image.alt;
+      }
+
+      function closeLightbox() {
+        lightbox.classList.remove('visible');
+        document.body.classList.remove('lightbox-open');
+      }
+
+      function showNextImage(step) {
+        currentImageIndex = (currentImageIndex + step + galleryImages.length) % galleryImages.length;
+        updateLightboxImage();
+      }
+
+      lightboxClose.addEventListener('click', closeLightbox);
+      lightboxPrev.addEventListener('click', function () {
+        showNextImage(-1);
+      });
+      lightboxNext.addEventListener('click', function () {
+        showNextImage(1);
+      });
+      lightbox.addEventListener('click', function (event) {
+        if (event.target === lightbox) closeLightbox();
+      });
+      document.addEventListener('keydown', function (event) {
+        if (!lightbox.classList.contains('visible')) return;
+        if (event.key === 'Escape') closeLightbox();
+        if (event.key === 'ArrowLeft') showNextImage(-1);
+        if (event.key === 'ArrowRight') showNextImage(1);
+      });
+
+      // ---- Confetti ----
+      function launchConfetti() {
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        let w = canvas.width = window.innerWidth;
+        let h = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', function () {
+          w = canvas.width = window.innerWidth;
+          h = canvas.height = window.innerHeight;
+        });
+
+        const colors = ['#e85d75', '#f7a072', '#4f9697', '#fff8f5'];
+        const pieces = [];
+        const count = 140;
+
+        for (let i = 0; i < count; i++) {
+          pieces.push({
+            x: Math.random() * w,
+            y: -20 - Math.random() * h * 0.5,
+            size: 6 + Math.random() * 6,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            speedY: 2 + Math.random() * 3,
+            speedX: -1.5 + Math.random() * 3,
+            rotation: Math.random() * 360,
+            rotSpeed: -6 + Math.random() * 12,
+            shape: Math.random() > 0.5 ? 'rect' : 'circle'
+          });
+        }
+
+        let frame = 0;
+        const maxFrames = 260;
+
+        function draw() {
+          frame++;
+          ctx.clearRect(0, 0, w, h);
+
+          pieces.forEach(function (p) {
+            p.x += p.speedX;
+            p.y += p.speedY;
+            p.rotation += p.rotSpeed;
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rotation * Math.PI / 180);
+            ctx.fillStyle = p.color;
+
+            if (p.shape === 'rect') {
+              ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+            } else {
+              ctx.beginPath();
+              ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            ctx.restore();
+          });
+
+          if (frame < maxFrames) {
+            requestAnimationFrame(draw);
+          } else {
+            ctx.clearRect(0, 0, w, h);
+          }
+        }
+
+        requestAnimationFrame(draw);
+      }
+    })();
+  </script>
+
+</body>
+
+</html>

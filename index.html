@@ -54,6 +54,17 @@
       margin-bottom: 14px;
     }
 
+    .question-image {
+      display: block;
+      width: min(300px, 78vw);
+      max-height: 200px;
+      object-fit: contain;
+      margin: 0 auto 14px;
+      transform: translateY(-10px);
+      border-radius: 18px;
+      /* box-shadow: 0 12px 28px rgba(69, 44, 54, 0.14); */
+    }
+
     h1 {
       font-family: 'Fredoka', sans-serif;
       font-weight: 600;
@@ -90,7 +101,7 @@
       padding: 18px 46px;
       cursor: pointer;
       position: absolute;
-      top: min(68vh, calc(100vh - 80px));
+      top: min(78vh, calc(100vh - 70px));
       transform: translate(-50%, -50%);
       transition: transform 0.35s cubic-bezier(.34, 1.56, .64, 1), background 0.2s ease, box-shadow 0.2s ease, left 0.28s ease, top 0.28s ease;
       white-space: nowrap;
@@ -127,6 +138,10 @@
     /* ---- success screen ---- */
     #success-screen {
       display: none;
+    }
+
+    #game-screen {
+      top: -70px;
     }
 
     #success-screen.visible {
@@ -345,6 +360,7 @@
   <canvas id="confetti-canvas"></canvas>
 
   <section class="stage" id="game-screen">
+    <img class="question-image" src="./images/love.gif" alt="Cute animated love picture">
     <div class="eyebrow">Quick question</div>
     <h1 id="question">Are you still feeling upset?</h1>
     <div class="caption" id="caption">&nbsp;</div>
@@ -432,6 +448,9 @@
 
       function dodge() {
         dodgeCount++;
+
+        const yesScale = Math.min(1 + dodgeCount * 0.16, MAX_SCALE);
+        yesBtn.style.transform = `translate(-50%, -50%) scale(${yesScale})`;
 
         const pos = randomPosition();
         noBtn.style.left = pos.x + 'px';
